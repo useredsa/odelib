@@ -13,7 +13,7 @@ void print(Vector4d& x) {
 
 int main() {
     // cin >> step_size >> num_it;
-    Vector4d x0{0.994, 0, 0, -2.001585106}; 
+    Vector4d x0{0.994, 0, 0, -2.001585106};
     auto sol = fixed_step_ode_solver(
         0,
         x0,
