@@ -13,7 +13,7 @@ template<typename Derivative>
 struct Euler {
     Derivative f;
 
-    constexpr int order() {
+    static constexpr int order() {
         return 1;
     }
 
@@ -33,7 +33,7 @@ template<typename Derivative>
 struct ModEuler {
     Derivative f;
 
-    constexpr int order() {
+    static constexpr int order() {
         return 2;
     }
 
@@ -53,7 +53,7 @@ template<typename Derivative>
 struct RK4 {
     Derivative f;
 
-    constexpr int order() {
+    static constexpr int order() {
         return 4;
     }
 

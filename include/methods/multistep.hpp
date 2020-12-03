@@ -23,9 +23,9 @@ struct AdamsBashforth4 {
     inline Vectord<N> step(const Vectord<N>* x, const Vectord<N>* d, double h) {
         return x[3] + h/24*(-9*d[0] + 37*d[1] - 59*d[2] + 55*d[3]);
     }
-}  // namespace multistep
+};
 
-}
+}  // namespace multistep
 
 #endif // INCLUDE_METHODS_MULTISTEP_HPP_
 
