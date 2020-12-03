@@ -1,10 +1,39 @@
 # C++ Numerical Solvers for Ordinary Differential Equations
 
-Pending description.
+Welcome to our numerical library for ODEs.
+This repository contains C++ implementations of common ODE numerical methods.
+
+We chose C++ because it is a language that lets us
+write high-level code using vector operations,
+while performing **just as fast as plain C style** for loops
+(pending upload of tests).
+ODE Solvers are generally difficult to optimize for the compiler
+because to be calculated,
+each point depends on the previous ones and a derivative function that is
+generally unknown in other languages
+during the compilation process of the method,
+making it difficult to vectorize.
+We make use of the C++ template system to pass all possible information
+in compilation time.
+The result is a generation of **code specific for each intial value problem**
+and **incredibly fast**.
 
 ## Target Audience
 
-Pending description.
+We developed this library for the subject
+*Numerical Methods for Differential Equations*
+which we taked in our Mathematics and Computer Engineering degrees in
+the [University of Murcia].
+
+Our target audience are Computer Engineering and/or Mathematics students
+that are also learning and implementing this algorithms.
+This may have influenced some of our decisions.
+For example, the project is very easy to download and test because
+our main dependency comes in the form of header files,
+avoiding the necessity to install external libraries in your system,
+and our build system is a [`Makefile`].
+
+[University of Murcia]: https://www.um.es/
 
 ## Compiling and Running
 
@@ -52,3 +81,17 @@ We include some parts of Eigen 3.3.8 under [lib] as is.
 
 [lib]: /lib
 [MPL2]: https://www.mozilla.org/en-US/MPL/2.0/
+
+## LICENSE
+
+The libraries used come with their own software licenses and apply only
+to that source code.
+
+Our own work is licensed under the Apache [2.0 License].
+This is a permissive license —
+meaning that it grants you (and anyone) permission to
+use, copy, modify, distribute, and run this code.
+Had there not been a license, you would not have that permission.
+If you find useful our work, we will be glad to hear from you!
+
+[Apache 2.0 License]: https://apache.org/licenses/LICENSE-2.0
