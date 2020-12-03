@@ -1,39 +1,40 @@
-#ifndef FIXED_STEP_H
-#define FIXED_STEP_H
+#ifndef INCLUDE_METHODS_FIXED_STEP_HPP_
+#define INCLUDE_METHODS_FIXED_STEP_HPP_
 
 #include <iostream>
 #include <vector>
-#include <Eigen/Dense>
-#include <Eigen/StdVector>
+#include "Vectord.hpp"
 
 namespace fixed_step {
 
-template<int N>
-using Vectord = Eigen::Matrix<double, N, 1>;
+using Eigen::Vectord;
 
-template<typename F, int N>
+template<typename Derivative>
 struct Euler {
-    F f;
+    Derivative f;
 
+    template<int N>
     inline Vectord<N> operator()(double t, const Vectord<N>& x, double step) {
         return f(t, x)*step;
     }
 };
 
-template<typename F, int N>
+template<typename Derivative>
 struct ModEuler {
-    F f;
+    Derivative f;
 
+    template<int N>
     inline Vectord<N> operator()(double t, const Vectord<N>& x, double step) {
         Vectord<N> d = f(t, x)*step;
         return (d + f(t+step, x+d)*step)/2;
     }
 };
 
-template<typename F, int N>
+template<typename Derivative>
 struct RK4 {
-    F f;
+    Derivative f;
 
+    template<int N>
     inline Vectord<N> operator()(double t, const Vectord<N>& x, double step) {
         Vectord<N> k[4];
         k[0] = f(t, x)*step;
@@ -45,7 +46,8 @@ struct RK4 {
 };
 
 template<typename Method, int N>
-std::vector<Vectord<N>, Eigen::aligned_allocator<Vectord<N>>> fixed_step_ode_solver(
+std::vector<Vectord<N>, Eigen::aligned_allocator<Vectord<N>>>
+fixed_step_ode_solver(
     double t0,
     const Vectord<N>& x0,
     Method met,
@@ -61,6 +63,6 @@ std::vector<Vectord<N>, Eigen::aligned_allocator<Vectord<N>>> fixed_step_ode_sol
     return x;
 }
 
-} // namespace fixed_step
+}  // namespace fixed_step
 
-#endif // FIXED_STEP_H
+#endif  // INCLUDE_METHODS_FIXED_STEP_HPP_

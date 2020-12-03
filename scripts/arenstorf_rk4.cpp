@@ -4,26 +4,23 @@ using namespace fixed_step;
 using namespace arenstorf;
 using namespace std;
 
-double K_STEP = 1e-6;
-int K_NUMIT = 40e6;
+double step_size = 1e-6;
+int num_it = 40e6;
 
-void print(Vectord<K_DIM>& x) {
+void print(Vector4d& x) {
     cout << "p(" << x[0] << ", " << x[1] << ") v(" << x[2] << ", " << x[3] << ")\n";
 }
 
 int main() {
-    // cin >> K_STEP >> K_NUMIT;
-    Vectord<K_DIM> x0{0.994, 0, 0, -2.001585106}; 
+    // cin >> step_size >> num_it;
+    Vector4d x0{0.994, 0, 0, -2.001585106}; 
     auto sol = fixed_step_ode_solver(
         0,
         x0,
-        RK4<derivative, K_DIM>(),
-        K_STEP,
-        K_NUMIT
+        RK4<derivative>(),
+        step_size,
+        num_it
     );
-    // for (auto x : sol) {
-    //     cout << "p(" << x[0] << ", " << x[1] << ") v(" << x[2] << ", " << x[3] << ")\n";
-    // }
     print(sol.back());
 }
 
