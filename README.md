@@ -70,7 +70,7 @@ Aftter compiling, run any program with `./bin/<script_name>`.
 
 ### Eigen
 
-Eigen is a C++ template library for linear algebra:
+[Eigen] is a C++ template library for linear algebra:
 matrices, vectors, numerical solvers, and related algorithms.
 We use Eigen to code high level algorithms
 using their powerful system of vectors and matrices
@@ -79,6 +79,7 @@ while maintaining peak performance.
 Eigen is licensed under the [MPL2].
 We include some parts of Eigen 3.3.8 under [lib] as is.
 
+[Eigen]: http://eigen.tuxfamily.org/index.php?title=Main_Page
 [lib]: /lib
 [MPL2]: https://www.mozilla.org/en-US/MPL/2.0/
 
@@ -87,7 +88,7 @@ We include some parts of Eigen 3.3.8 under [lib] as is.
 The libraries used come with their own software licenses and apply only
 to that source code.
 
-Our own work is licensed under the Apache [2.0 License].
+Our own work is licensed under the [Apache 2.0 License].
 This is a permissive license —
 meaning that it grants you (and anyone) permission to
 use, copy, modify, distribute, and run this code.
