@@ -74,6 +74,28 @@ struct RK4 {
     }
 };
 
+template<typename Derivative, int Order>
+struct Taylor {
+    Derivative f;
+
+    static_assert(Order <= Derivative::order());
+
+    static constexpr int order() {
+        return Order;
+    }
+
+    template<int N>
+    inline Vectord<N> step(double t, const Vectord<N>& x, double h) {
+        Vectord<N> next;
+        double coef = 1;
+        for(int i=1; i <= Order; ++i) {
+            coef *= h / i;
+            next += coef * f(t, x, i - 1);
+        }
+        return next;
+    }
+};
+
 template<typename Method, int N>
 std::vector<Vectord<N>, Eigen::aligned_allocator<Vectord<N>>>
 fixed_step_ode_solver(

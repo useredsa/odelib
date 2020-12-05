@@ -34,6 +34,6 @@ struct derivative {
     }
 };
 
-}  // namespace arenstorf
+}  // namespace two_bodies
 
-#endif  // INCLUDE_PROBLEMS_ARENSTORF_HPP_
+#endif  // INCLUDE_PROBLEMS_TWOBODIES_HPP_
