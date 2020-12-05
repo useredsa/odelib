@@ -108,8 +108,6 @@ struct RKFelhberg {
         double error = (rk5 - rk4).norm();
         double q = std::pow(tolerance * h / (2*error), 0.25);
         q = std::max(0.1, std::min(q, 4.0));
-        std::cerr << "Time: " << t << " Step: " << h << "\n";
-        std::cerr << rk4 << "|\n" << rk5 << "\n";
 
         if (error < tolerance * h) {
             t += h;
@@ -141,7 +139,7 @@ adaptive_step_ode_solver(
             t.push_back(r.time);
             x.push_back(r.point);
         } else if (r.status == kStepWentBelowMin) {
-            std::cerr << "We fucked up!" << std::endl;
+            std::cerr << "We messed up!" << std::endl;
             std::cerr << "Iteration: " << i << std::endl;
             break;
         }
