@@ -1,31 +1,29 @@
-#ifndef INCLUDE_METHODS_NEWTON_HPP_
-#define INCLUDE_METHODS_NEWTON_HPP_
+#ifndef INCLUDE_UTILS_NEWTON_HPP_
+#define INCLUDE_UTILS_NEWTON_HPP_
 
 #include <iostream>
-#include <vector>
-#include "Vectord.hpp"
-
-using Eigen::Vectord;
-
-const int MAX_IT = 20;
-const int DEFAULT_TOL = 1e-10;
+#include <cmath>
 
 template<typename Function, typename Derivative>
-Function f;
-Derivative der;
+struct Newton1d {
+    static constexpr int kMaxIt = 20;
+    static constexpr double kDefTol = 1e-10;
 
-struct Newton {
-  inline Vectord<1> (double t, Vectord<1>& start, double tol = DEFAULT_TOL) {
-    Vectord<1> x = start;
-    for(int i=0; i < MAX_IT; ++i) {
-      Vectord<1> nxt = x - f(x) / der(x);
-      if((x-nxt).norm() < tol)
-        return nxt;
-      x = nxt;
+    Function f;
+    Derivative der;
+
+    inline double operator()(double t, double start, double tol = kDefTol) {
+        double x = start;
+        for (int i = 0; i < kMaxIt; ++i) {
+            double nxt = x - f(x) / der(x);
+            if (std::abs(x - nxt) < tol) {
+                return nxt;
+            }
+            x = nxt;
+        }
+        std::cerr << "Newton did not converge." << std::endl;
+        return x;
     }
-    std::cerr << "Newton did not converge." << std::endl;
-    return x;
-  }
 };
 
-#endif  // INCLUDE_METHODS_NEWTON_HPP_
+#endif  // INCLUDE_UTILS_NEWTON_HPP_
