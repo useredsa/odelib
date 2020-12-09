@@ -15,8 +15,10 @@ int main() {
     cin >> step_size;
     Vectord<1> x0{-1};
     vector<Vectord<1>, Eigen::aligned_allocator<Vectord<1>>> as(niters+1);
+    vector<double> t(niters+1);
     for (int i = 0; i < niters+1; ++i) {
         as[i] = analytical_sol()(step_size*i);
+        t[i] = step_size*i;
     }
     {
         auto sol = fixed_step_ode_solver(
@@ -27,7 +29,7 @@ int main() {
             niters
         );
         double err = abs_diff_vectors(sol, as);
-        cout << err << endl;
+        cout << err << " " << abs_diff_func<1, analytical_sol>(t, sol) << endl;
     }
 
     {
@@ -39,7 +41,7 @@ int main() {
             niters
         );
         double err = abs_diff_vectors(sol, as);
-        cout << err << endl;
+        cout << err << " " << abs_diff_func<1, analytical_sol>(t, sol) << endl
     }
 
     {
@@ -51,7 +53,7 @@ int main() {
             niters
         );
         double err = abs_diff_vectors(sol, as);
-        cout << err << endl;
+        cout << err << " " << abs_diff_func<1, analytical_sol>(t, sol) << endl;
     }
 }
 
