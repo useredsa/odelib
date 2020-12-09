@@ -7,7 +7,7 @@
 template<typename Function, typename Derivative>
 struct Newton1d {
     static constexpr int kMaxIt = 30;
-    static constexpr double kDefTol = 1e-10;
+    static constexpr double kDefTol = 1e-6;
 
     Function &f;
     Derivative &der;

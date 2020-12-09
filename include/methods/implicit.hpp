@@ -5,6 +5,7 @@
 #include <vector>
 #include "Vectord.hpp"
 #include "utils/newton.hpp"
+#include "utils/secant.hpp"
 
 namespace implicit {
 
@@ -73,7 +74,7 @@ newton_ode_solver(
     double step = 1e-3,
     int iter = 10000
 ) {
-    int i;
+    int i = 0;
     std::vector<Vectord<N>, Eigen::aligned_allocator<Vectord<N>>> x(iter+1);
     x[0] = x0;
 
@@ -87,6 +88,37 @@ newton_ode_solver(
 
     for (i = 0; i < iter; ++i) {
         x[i+1] = Vectord<1>{solver.solve(x[i][0])};
+        t0 += step;
+    }
+    return x;
+}
+
+template<typename Method, int N>
+std::vector<Vectord<N>, Eigen::aligned_allocator<Vectord<N>>>
+secant_ode_solver(
+    double t0,
+    const Vectord<N>& x0,
+    Method met,
+    double step = 1e-3,
+    int iter = 10000
+) {
+    int i = 0;
+    std::vector<Vectord<N>, Eigen::aligned_allocator<Vectord<N>>> x(iter+1);
+    x[0] = x0;
+
+    auto f = [&](double w) {
+      return met.equation(t0, x[i], step, Vectord<1>{w})[0];
+    };
+    auto der = [&](double w) {
+      return met.d_equation(t0, x[i], step, Vectord<1>{w})[0];
+    };
+    Secant1d solver(f);
+    Newton1d aux(f, der);
+    x[1] = Vectord<1>{aux.solve(x[0][0])};
+    // x[1] = Vectord<1>{solver.solve(x[0][0]+step, x[0][0])};
+
+    for (i = 1; i < iter; ++i) {
+        x[i+1] = Vectord<1>{solver.solve(x[i-1][0], x[i][0])};
         t0 += step;
     }
     return x;
