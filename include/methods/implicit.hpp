@@ -12,21 +12,54 @@ using Eigen::Vectord;
 template<typename Derivative, typename ImplicitCalc>
 struct BackwardsEuler {
     Derivative f;
-    ImplicitCalc ic; // method that approximates the next derivative
 
     static constexpr int order() {
         return 1;
     }
 
     template<int N>
-    inline Vectord<N> step(double t, const Vectord<N>& x, double h) {
-        return hinted_step(t, x, h, f(t, x));
+    inline Vectord<N> equation(double t, const Vectord<N>& x,
+                               double h, const Vectord<N>& y) {
+        return y - x - h*f(t+h, y);
     }
 
     template<int N>
-    inline Vectord<N> hinted_step(double t, const Vectord<N>& x,
-                                  double h, const Vectord<N>& d) {
+    inline Vectord<N> hinted_equation(double t, const Vectord<N>& x, double h,
+                                    const Vectord<N>& y, const Vectord<N>& d) {
+        return y - x - h*f(t+h, y);
+    }
 
+    template<int N>
+    inline Vectord<N> d_equation(double t, const Vectord<N>& x,
+                                 double h, const Vectord<N>& y) {
+        return 1 - h*f.d_y(t+h, y);
+    }
+};
+
+template<typename Derivative, typename ImplicitCalc>
+struct Trapezoidal {
+    Derivative f;
+
+    static constexpr int order() {
+        return 2;
+    }
+
+    template<int N>
+    inline Vectord<N> equation(double t, const Vectord<N>& x,
+                               double h, const Vectord<N>& y) {
+        return hinted_equation(t, x, h, y, f(t, x));
+    }
+
+    template<int N>
+    inline Vectord<N> hinted_equation(double t, const Vectord<N>& x, double h,
+                                    const Vectord<N>& y, const Vectord<N>& d) {
+        return y - x - h/2*(d + f(t+h, y));
+    }
+
+    template<int N>
+    inline Vectord<N> d_equation(double t, const Vectord<N>& x,
+                                 double h, const Vectord<N>& y) {
+        return 1 - h/2*f.d_y(t+h, y);
     }
 };
 
