@@ -115,7 +115,6 @@ secant_ode_solver(
     Secant1d solver(f);
     Newton1d aux(f, der);
     x[1] = Vectord<1>{aux.solve(x[0][0])};
-    // x[1] = Vectord<1>{solver.solve(x[0][0]+step, x[0][0])};
 
     for (i = 1; i < iter; ++i) {
         x[i+1] = Vectord<1>{solver.solve(x[i-1][0], x[i][0])};

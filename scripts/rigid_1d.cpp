@@ -41,7 +41,7 @@ int main() {
             niters
         );
         double err = abs_diff_vectors(sol, as);
-        cout << err << " " << abs_diff_func<1, analytical_sol>(t, sol) << endl;
+        cout << err << " " << abs_diff_func<1, analytical_sol>(t, sol) << endl
     }
 
     {
