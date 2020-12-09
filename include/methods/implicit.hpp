@@ -4,12 +4,13 @@
 #include <iostream>
 #include <vector>
 #include "Vectord.hpp"
+#include "utils/newton.hpp"
 
 namespace implicit {
 
 using Eigen::Vectord;
 
-template<typename Derivative, typename ImplicitCalc>
+template<typename Derivative>
 struct BackwardsEuler {
     Derivative f;
 
@@ -32,11 +33,11 @@ struct BackwardsEuler {
     template<int N>
     inline Vectord<N> d_equation(double t, const Vectord<N>& x,
                                  double h, const Vectord<N>& y) {
-        return 1 - h*f.d_y(t+h, y);
+        return Vectord<N>::Ones() - h*f.d_y(t+h, y);
     }
 };
 
-template<typename Derivative, typename ImplicitCalc>
+template<typename Derivative>
 struct Trapezoidal {
     Derivative f;
 
@@ -59,23 +60,33 @@ struct Trapezoidal {
     template<int N>
     inline Vectord<N> d_equation(double t, const Vectord<N>& x,
                                  double h, const Vectord<N>& y) {
-        return 1 - h/2*f.d_y(t+h, y);
+        return Vectord<N>::Ones() - h/2*f.d_y(t+h, y);
     }
 };
 
 template<typename Method, int N>
 std::vector<Vectord<N>, Eigen::aligned_allocator<Vectord<N>>>
-fixed_step_ode_solver(
+newton_ode_solver(
     double t0,
     const Vectord<N>& x0,
     Method met,
     double step = 1e-3,
     int iter = 10000
 ) {
+    int i;
     std::vector<Vectord<N>, Eigen::aligned_allocator<Vectord<N>>> x(iter+1);
     x[0] = x0;
-    for (int i = 0; i < iter; ++i) {
-        x[i+1] = x[i] + met.step(t0, x[i], step);
+
+    auto f = [&](double w) {
+      return met.equation(t0, x[i], step, Vectord<1>{w})[0];
+    };
+    auto der = [&](double w) {
+      return met.d_equation(t0, x[i], step, Vectord<1>{w})[0];
+    };
+    Newton1d solver(f, der);
+
+    for (i = 0; i < iter; ++i) {
+        x[i+1] = Vectord<1>{solver.solve(x[i][0])};
         t0 += step;
     }
     return x;

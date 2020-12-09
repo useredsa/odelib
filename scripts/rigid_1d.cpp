@@ -1,6 +1,6 @@
-#include "methods/fixed_step.hpp"
+#include "methods/implicit.hpp"
 #include "problems/rigid_1d.hpp"
-using namespace fixed_step;
+using namespace implicit;
 using namespace rigid_1d;
 using namespace std;
 
@@ -11,10 +11,10 @@ analytical_sol as;
 
 int main() {
     Vectord<1> x0{-1};
-    auto sol = fixed_step_ode_solver(
+    auto sol = newton_ode_solver(
         0,
         x0,
-        RK4<derivative>(),
+        BackwardsEuler<derivative>(),
         step_size,
         niters
     );

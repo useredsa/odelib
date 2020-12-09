@@ -20,13 +20,10 @@ struct derivative {
   }
 
   inline Vectord<kDim> d_y(double t, const Vectord<kDim>& x) {
-    double e = exp(5*t);
-    double diff = x[0] - t;
     return Vectord<1>{
-      50 * e * diff * (e * diff * diff + 1)
+      10 * exp(5*t) * (x[0] - t)
     };
   }
-
 };
 
 struct analytical_sol {
