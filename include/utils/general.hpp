@@ -24,7 +24,7 @@ double abs_diff_vectors(
     return err;
 }
 
-template<int N, typename AnalyticalSol>
+template<typename AnalyticalSol, int N>
 double abs_diff_func(
     std::vector<double> t,
     std::vector<Vectord<N>, Eigen::aligned_allocator<Vectord<N>>> x) {
