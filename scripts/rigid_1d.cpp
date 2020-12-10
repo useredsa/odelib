@@ -4,56 +4,75 @@
 #include "utils/general.hpp"
 using namespace implicit;
 using namespace fixed_step;
-using namespace rigid_1d;
 using namespace std;
 
-double step_size = 0.21;
-double max_t = 8;
-int niters = int(max_t / step_size);
+// ASSIGNMENT 10/12/2020
+
+double t0 = 0;
+Vectord<1> x0{-1};
+Rigid_1d problem(t0, x0);
+
+double rk4adap_error() {
+  return 0;
+}
+
+double rkf_error() {
+  return 0;
+}
+
+// double rk4_error(double step_size, double max_t) {
+//   int niters = int(max_t / step_size);
+//   vector<double> t(niters+1);
+//   for (int i = 0; i < niters+1; ++i)
+//     t[i] = step_size*i;
+//   auto sol = fixed_step_ode_solver(
+//       0,
+//       x0,
+//       RK4<derivative>(),
+//       step_size,
+//       niters
+//       );
+//
+//   return abs_diff_func<analytical_sol>(t, sol);
+// }
+
+double backwards_euler_error(double step_size, double max_t) {
+  int niters = int(max_t / step_size);
+  vector<double> t(niters+1);
+  for (int i = 0; i < niters+1; ++i)
+    t[i] = step_size*i;
+
+  BackwardsEuler<Rigid_1d, 1> method(problem);
+
+  auto sol = method.solve(
+      step_size,
+      niters
+      );
+
+  return abs_diff_func<analytical_sol>(t, sol);
+}
+
+double trapezoidal_error(double step_size, double max_t) {
+  int niters = int(max_t / step_size);
+  vector<double> t(niters+1);
+  for (int i = 0; i < niters+1; ++i)
+    t[i] = step_size*i;
+
+  Trapezoidal<Rigid_1d, 1> method(problem);
+
+  auto sol = method.solve(
+      step_size,
+      niters
+      );
+
+  return abs_diff_func<analytical_sol>(t, sol);
+}
 
 int main() {
-    cin >> step_size;
-    Vectord<1> x0{-1};
-    vector<Vectord<1>, Eigen::aligned_allocator<Vectord<1>>> as(niters+1);
-    vector<double> t(niters+1);
-    for (int i = 0; i < niters+1; ++i) {
-        as[i] = analytical_sol()(step_size*i);
-        t[i] = step_size*i;
-    }
-    {
-        auto sol = fixed_step_ode_solver(
-            0,
-            x0,
-            Euler<derivative>(),
-            step_size,
-            niters
-        );
-        double err = abs_diff_vectors(sol, as);
-        cout << err << " " << abs_diff_func<analytical_sol>(t, sol) << endl;
-    }
-
-    {
-        auto sol = newton_ode_solver(
-            0,
-            x0,
-            BackwardsEuler<derivative>(),
-            step_size,
-            niters
-        );
-        double err = abs_diff_vectors(sol, as);
-        cout << err << " " << abs_diff_func<analytical_sol>(t, sol) << endl;
-    }
-
-    {
-        auto sol = secant_ode_solver(
-            0,
-            x0,
-            BackwardsEuler<derivative>(),
-            step_size,
-            niters
-        );
-        double err = abs_diff_vectors(sol, as);
-        cout << err << " " << abs_diff_func<analytical_sol>(t, sol) << endl;
-    }
+  double step_size = 0.000001;
+  double t_max = 8;
+  cout << trapezoidal_error(step_size, t_max) << endl;
+  cout << backwards_euler_error(step_size, t_max) << endl;
+  // cout << rk4_error(step_size, t_max) << endl;
 }
 
