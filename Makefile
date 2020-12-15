@@ -69,7 +69,7 @@ $(BINDIR)/%: $(TARGETSDIR)/%.cpp
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.cpp
 	@mkdir -p $(@D)
-	$(CXX) $(CXXFLAGS) $(INC) $< -o $(@:.d=.o)
+	$(CXX) $(CXXFLAGS) $(INC) $< -c -o $(@:cpp=.o)
 
 # rules to generate a dep file by using the C preprocessor
 # (see man cpp for details on the -MM and -MT options)

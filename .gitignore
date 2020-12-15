@@ -1,7 +1,8 @@
 bin/
 build/
+outputs/
 
-build/local
-scripts/local
-
-.DS_Store
+include/local/
+src/local
+scripts/local/
+media/local/

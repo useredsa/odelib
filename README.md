@@ -1,4 +1,4 @@
-# C++ Numerical Solvers for Ordinary Differential Equations
+# ODE Lib - C++ Numerical Solvers for Ordinary Differential Equations
 
 Welcome to our numerical library for ODEs.
 This repository contains C++ implementations of common ODE numerical methods.
