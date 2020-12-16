@@ -2,23 +2,16 @@
 #define INCLUDE_METHODS_FEHLBERG_HPP_
 
 #include <algorithm>
-#include <iostream>
 #include <utility>
-#include <vector>
-#include "methods/interfaces/adaptive_single_step_method.hpp"
 #include "types.hpp"
 
 namespace odelib {
 
-template<IvpDerivative D>
 struct Fehlberg {
-  D f;
+  static constexpr int order = 4;
 
-  static constexpr int order() {
-    return 4;
-  }
-
-  inline std::pair<Vectord<D::kDim>, double> step(double t,
+  template<IvpDerivative D>
+  inline std::pair<Vectord<D::kDim>, double> step(D f, double t,
       const Vectord<D::kDim>& x, double& h, double tolerance) const {
     Vectord<D::kDim> k[6];
     k[0] = h*f(t, x);

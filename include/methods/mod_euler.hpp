@@ -6,21 +6,18 @@
 
 namespace odelib {
 
-template<IvpDerivative D>
 struct ModEuler {
-  D f;
+  static constexpr int order = 2;
 
-  static constexpr int order() {
-    return 2;
-  }
-
-  inline Vectord<D::kDim> step(double t, const Vectord<D::kDim>& x,
-                               double h) const {
+  template<IvpDerivative D>
+  inline Vectord<D::kDim> step(D f, double t, const Vectord<D::kDim>& x,
+      double h) const {
     return hinted_step(t, x, h, f(t, x));
   }
 
-  inline Vectord<D::kDim> hinted_step(double t, const Vectord<D::kDim>& x,
-                              double h, const Vectord<D::kDim>& dv) const {
+  template<IvpDerivative D>
+  inline Vectord<D::kDim> hinted_step(D f, double t, const Vectord<D::kDim>& x,
+      double h, const Vectord<D::kDim>& dv) const {
     return x + (dv*h + f(t+h, x+dv*h)*h)/2;
   }
 };

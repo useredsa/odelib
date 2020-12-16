@@ -5,23 +5,20 @@
 #include <iostream>
 #include <utility>
 #include <vector>
-#include "methods/interfaces/adaptive_single_step_method.hpp"
 #include "methods/interfaces/plain_method.hpp"
 #include "initial_value_problem.hpp"
 #include "types.hpp"
 
 namespace odelib {
 
-template<PlainMethod Method, IvpDerivative D>
+template<PlainMethod Method>
 struct RichardsonExtrapolation {
+  static constexpr int order = Method::order+1;
+
   Method met;
-  D f;
 
-  static constexpr int order() {
-    return Method::order()+1;
-  }
-
-  inline std::pair<Vectord<D::kDim>, double> step(double t,
+  template<IvpDerivative D>
+  inline std::pair<Vectord<D::kDim>, double> step(D f, double t,
       const Vectord<D::kDim>& x, double& h, double tolerance) const {
     Vectord<D::kDim> d = f(t, x);
     Vectord<D::kDim> fullstep = met.hinted_step(t, x, h, d);
@@ -31,7 +28,7 @@ struct RichardsonExtrapolation {
                                / ((1 << Method::order()) - 1);
 
     constexpr double coef = (1 << Method::order())
-                              / static_cast<double>((1 << Method::order())-1);
+                              / static_cast<double>((1 << Method::order)-1);
     double error = coef*(fullstep-halfstep).norm();
     double q = std::pow(tolerance*h / error, 1.0/met.order());
     q = std::max(0.1, std::min(q, 4.0));

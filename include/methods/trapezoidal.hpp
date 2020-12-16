@@ -7,20 +7,17 @@
 
 namespace odelib {
 
-template<IvpDerivative D>
 struct Trapezoidal {
-  D f;
+  static constexpr int order = 2;
 
-  static constexpr int order() {
-    return 2;
-  }
-
-  inline LfImplicitEquation<D> equation(double t,
-                           const Vectord<D::kDim>& x, double h) {
+  template<IvpDerivative D>
+  inline LfImplicitEquation<D> equation(D f, double t,
+      const Vectord<D::kDim>& x, double h) {
     return hinted_equation(t, x, h, f(t, x));
   }
 
-  inline LfImplicitEquation<D> hinted_equation(double t,
+  template<IvpDerivative D>
+  inline LfImplicitEquation<D> hinted_equation(D f, double t,
       const Vectord<D::kDim>& x, double h, const Vectord<D::kDim>& dv) {
     return LfImplicitEquation<D>(x + h/2*dv, h/2, t+h);
   }

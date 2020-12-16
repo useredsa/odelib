@@ -2,6 +2,7 @@
 #define INCLUDE_METHODS_INTERFACES_ADAPTIVE_MULTISTEP_METHOD_HPP_
 
 #include <concepts>
+#include "problems/arenstorf.hpp"
 #include "types.hpp"
 
 namespace odelib {
@@ -10,14 +11,14 @@ namespace odelib {
  * AdaptiveMultistepMethod
  * An explicit, adaptive, multistep method for solving ODEs.
  */
-template<typename Method>
-concept AdaptiveMultistepMethod = requires(Method met, double tol,
-    double t, const Vectord<1>* x, double& h, const Vectord<1>* dv) {
-  { Method::order() } -> std::same_as<int>;
-  { Method::neededSteps() } -> std::same_as<int>;
-  // { met.step(t, x, h, dv, tol) }
-  //     -> std::same_as<std::pair<Vectord<1>, double>>;
-  { met.step(t, nullptr, h, nullptr, tol) };
+template<typename Method, typename Dv = Arenstorf::Dv>
+concept AdaptiveMultistepMethod = requires(Method met, Dv f, double t,
+    const Vectord<Dv::kDim>* x, double& h, const Vectord<Dv::kDim>* dv,
+    double tol) {
+  { Method::order } -> std::same_as<const int&>;
+  { Method::neededSteps } -> std::same_as<const int&>;
+  { met.step(f, t, x, h, dv, tol) }
+      -> std::same_as<std::pair<Vectord<Dv::kDim>, double>>;
 };
 
 }  // namespace odelib

@@ -11,24 +11,18 @@
 
 namespace odelib {
 
-template<IvpDerivative D, PlainMultistepMethod Predictor = AdamsBashforth4<D>>
+template<PlainMultistepMethod Predictor = AdamsBashforth4>
 struct PredictorCorrector4 {
-  D f;
+  static constexpr int order = std::min(4, Predictor::order);
+  static constexpr int neededSteps = std::max(3, Predictor::neededSteps);
+
   Predictor predictor;
 
-  static constexpr int order() {
-    return std::min(4, Predictor::order());
-  }
-
-  static constexpr int neededSteps() {
-    //TODO max between predictor and corrector
-    return std::max(3, Predictor::neededSteps());
-  }
-
-  inline std::pair<Vectord<D::kDim>, double> step(double t,
+  template<IvpDerivative D>
+  inline std::pair<Vectord<D::kDim>, double> step(D f, double t,
       const Vectord<D::kDim>* x, double& h,
       const Vectord<D::kDim>* d, double tol) const {
-    Vectord<D::kDim> pred = predictor.step(t, x, h, d);
+    Vectord<D::kDim> pred = predictor.step(f, t, x, h, d);
     Vectord<D::kDim> dpred = f(t + h, pred);
     Vectord<D::kDim> corr = x[3] + h/24*(d[1] - 5*d[2] + 19*d[3] + 9*dpred);
     double dist = (pred - corr).norm();

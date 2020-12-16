@@ -2,6 +2,5 @@ The methods must allow a simple optimization where the derivative
 at (t, x) is known and need not be recalculated.
 We chose the name hinted steps for this methods.
 
-In some concepts {} Represents const Vectord<N>& for some N.
-In others, nullptr represents const Vectord<N>* for some N.
+We use a random initial value problem to test the conditions.
 

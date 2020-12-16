@@ -1,5 +1,5 @@
 #include "methods/interfaces/plain_method.hpp"
-#include "methods/interfaces/adaptive_single_step_method.hpp"
+#include "methods/interfaces/plain_adaptive_method.hpp"
 #include "methods/interfaces/plain_multistep_method.hpp"
 #include "methods/interfaces/adaptive_multistep_method.hpp"
 #include "methods/interfaces/plain_implicit_method.hpp"
@@ -24,33 +24,33 @@
 namespace odelib {
 
 // Plain
-static_assert(PlainMethod<Euler<Arenstorf::Dv>>);
-static_assert(PlainMethod<ModEuler<Arenstorf::Dv>>);
-static_assert(PlainMethod<RK4<Arenstorf::Dv>>);
-static_assert(PlainMethod<Taylor<Taylor1::Dv, 3>>);
+static_assert(PlainMethod<Euler>);
+static_assert(PlainMethod<ModEuler>);
+static_assert(PlainMethod<RK4>);
+static_assert(PlainMethod<Taylor<3>>);
 
-//TODO change name
 // PlainAdaptive
-static_assert(AdaptiveSingleStepMethod<
-                RichardsonExtrapolation<Euler<Arenstorf::Dv>, Arenstorf::Dv>>);
-static_assert(AdaptiveSingleStepMethod<Fehlberg<Arenstorf::Dv>>);
+static_assert(PlainAdaptiveMethod<RichardsonExtrapolation<Euler>>);
+static_assert(PlainAdaptiveMethod<Fehlberg>);
 
 // PlainMultistep
-static_assert(PlainMultistepMethod<AdamsBashforth4<Arenstorf::Dv>>);
+static_assert(PlainMultistepMethod<AdamsBashforth4>);
 
 // AdaptiveMultistep
-static_assert(AdaptiveMultistepMethod<PredictorCorrector4<Arenstorf::Dv>>);
+//TODO I think we should be able to write it without `AdamsBashforth4`
+// because it's the default template
+static_assert(AdaptiveMultistepMethod<PredictorCorrector4<AdamsBashforth4>>);
 
 // PlainImplicit
-static_assert(PlainImplicitMethod<BackwardsEuler<Arenstorf::Dv>>);
-static_assert(PlainImplicitMethod<Trapezoidal<Arenstorf::Dv>>);
+static_assert(PlainImplicitMethod<BackwardsEuler>);
+static_assert(PlainImplicitMethod<Trapezoidal>);
 
 // Bdf
 // static_assert(BackwardDifferentiationFormula<Bdf1<Rigid1::Dv>>);
-static_assert(BackwardDifferentiationFormula<Bdf2<Rigid1::Dv>>);
-static_assert(BackwardDifferentiationFormula<Bdf3<Rigid1::Dv>>);
-static_assert(BackwardDifferentiationFormula<Bdf4<Rigid1::Dv>>);
-static_assert(BackwardDifferentiationFormula<Bdf5<Rigid1::Dv>>);
-static_assert(BackwardDifferentiationFormula<Bdf6<Rigid1::Dv>>);
+static_assert(BackwardDifferentiationFormula<Bdf2>);
+static_assert(BackwardDifferentiationFormula<Bdf3>);
+static_assert(BackwardDifferentiationFormula<Bdf4>);
+static_assert(BackwardDifferentiationFormula<Bdf5>);
+static_assert(BackwardDifferentiationFormula<Bdf6>);
 
 }

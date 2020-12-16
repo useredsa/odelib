@@ -3,48 +3,47 @@
 
 namespace odelib {
 
-template<NDerivableIvpDerivative D, int Order>
+template<int Order>
 //TODO
 // requires ({ 0 < Order && Order <= Derivative::kNDerivableOrder() } -> true);
 struct Taylor {
-  D f;
+  static constexpr int order = Order + 1;
 
-  static constexpr int order() {
-    return Order;
+  template<NDerivableIvpDerivative D>
+  inline Vectord<D::kDim> step(D f, double t, const Vectord<D::kDim>& x,
+      double h) const {
+    return TaylorsExpansion(f, t, x, h).compute();
   }
 
-  inline Vectord<D::kDim> step(double t, const Vectord<D::kDim>& x,
-                               double h) const {
-      return TaylorsExpansion(t, x, h).compute();
-  }
-
-  inline Vectord<D::kDim> hinted_step(double t, const Vectord<D::kDim>& x,
-                              double h, const Vectord<D::kDim>& dv) const {
-      return h*dv + TaylorsExpansion(t, x, h).template compute<2>();
+  template<NDerivableIvpDerivative D>
+  inline Vectord<D::kDim> hinted_step(D f, double t, const Vectord<D::kDim>& x,
+      double h, const Vectord<D::kDim>& dv) const {
+    return h*dv + TaylorsExpansion(f, t, x, h).template compute<2>();
   }
 
  private:
   // This class is merely an intent of performing
   // a compile time loop unrolling.
+  template<NDerivableIvpDerivative D>
   struct TaylorsExpansion {
-      D f;
-      Vectord<D::kDim> next = Vectord<D::kDim>::Zero();
-      const Vectord<D::kDim>& x;
-      double t, h, coef = 1;
+    D f;
+    Vectord<D::kDim> next = Vectord<D::kDim>::Zero();
+    const Vectord<D::kDim>& x;
+    double t, h, coef = 1;
 
-      TaylorsExpansion(double t, const Vectord<D::kDim>& x, double h)
-          : x(x), t(t), h(h) {}
+    TaylorsExpansion(D f, double t, const Vectord<D::kDim>& x, double h)
+      : f(f), x(x), t(t), h(h) {}
 
-      template<int O = 1>
-      inline Vectord<D::kDim>& compute() {
-          if constexpr (O == Order) {
-              return next;
-          } else {
-              coef *= h/O;
-              next += coef * (f.template f<O+1>(t, x));
-              return compute<O+1>();
-          }
+    template<int O = 1>
+    inline Vectord<D::kDim>& compute() {
+      if constexpr (O == Order) {
+        return next;
+      } else {
+        coef *= h/O;
+        next += coef * (f.template f<O+1>(t, x));
+        return compute<O+1>();
       }
+    }
   };
 };
 

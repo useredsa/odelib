@@ -2,6 +2,8 @@
 #define INCLUDE_METHODS_INTERFACES_PLAIN_METHOD_HPP_
 
 #include <concepts>
+#include "initial_value_problem.hpp"
+#include "problems/taylor1.hpp"
 #include "types.hpp"
 
 namespace odelib {
@@ -10,14 +12,13 @@ namespace odelib {
  * PlainMethod
  * An explicit, non-adaptive, single-step method for solving ODEs.
  */
-template<typename Method>
+template<typename Method, typename Dv = Taylor1::Dv>
 concept PlainMethod = std::default_initializable<Method> && requires(Method met,
-    double t, const Vectord<1>& x, double h, const Vectord<1>& dv) {
-  { Method::order() } -> std::same_as<int>;
-  // { met.step(t, x, h) } -> std::same_as<typeof(x)>;
-  { met.step(t, {}, h) };
-  // { met.step(t, x, h, dv) } -> std::same_as<typeof(x)>;
-  { met.hinted_step(t, {}, h, {}) };
+    Dv f, double t, const Vectord<Dv::kDim>& x, double h,
+    const Vectord<Dv::kDim>& dv) {
+  { Method::order } -> std::same_as<const int&>;
+  { met.step(f, t, x, h) } -> std::same_as<Vectord<Dv::kDim>>;
+  { met.hinted_step(f, t, x, h, dv) } -> std::same_as<Vectord<Dv::kDim>>;
 };
 
 }  // namespace odelib
