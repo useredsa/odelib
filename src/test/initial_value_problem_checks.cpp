@@ -15,4 +15,4 @@ static_assert(InitialValueProblem<Taylor1>);
 static_assert(SpaceDerivableIvpDerivative<Rigid1::Dv>);
 static_assert(NDerivableIvpDerivative<Taylor1::Dv>);
 
-}
+}  // namespace odelib

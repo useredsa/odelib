@@ -7,10 +7,20 @@
 
 namespace odelib {
 
+/**
+ * Fehlberg's Method
+ * An adaptive Runge-Kutta method
+ * 
+ * Uses two Runge-Kutta methods of order's 4 and 5
+ * which share intermeditate steps.
+ * Thanks to this, with only 6 evaluations we can compute
+ * a fifth order Runge-Kutta method and
+ * an estimate of the error.
+ */
 struct Fehlberg {
-  static constexpr int order = 4;
+  static constexpr int kOrder = 4;
 
-  template<IvpDerivative D>
+  template <IvpDerivative D>
   inline std::pair<Vectord<D::kDim>, double> step(D f, double t,
       const Vectord<D::kDim>& x, double& h, double tolerance) const {
     Vectord<D::kDim> k[6];

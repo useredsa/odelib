@@ -7,14 +7,14 @@
 
 namespace odelib {
 
-template<int N>
+template <int N>
 using Vectord = Eigen::Matrix<double, N, 1>;
 
-template<int N>
+template <int N>
 using VecVectord =
     std::vector<Vectord<N>, Eigen::aligned_allocator<Vectord<N>>>;
 
-template<int N, int M>
+template <int N, int M>
 using Matrixd = Eigen::Matrix<double, N, M>;
 
 }  // namespace odelib

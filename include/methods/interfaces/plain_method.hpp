@@ -12,11 +12,11 @@ namespace odelib {
  * PlainMethod
  * An explicit, non-adaptive, single-step method for solving ODEs.
  */
-template<typename Method, typename Dv = Taylor1::Dv>
+template <typename Method, typename Dv = Taylor1::Dv>
 concept PlainMethod = std::default_initializable<Method> && requires(Method met,
     Dv f, double t, const Vectord<Dv::kDim>& x, double h,
     const Vectord<Dv::kDim>& dv) {
-  { Method::order } -> std::same_as<const int&>;
+  { Method::kOrder } -> std::same_as<const int&>;
   { met.step(f, t, x, h) } -> std::same_as<Vectord<Dv::kDim>>;
   { met.hinted_step(f, t, x, h, dv) } -> std::same_as<Vectord<Dv::kDim>>;
 };

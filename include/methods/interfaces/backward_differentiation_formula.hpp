@@ -12,15 +12,14 @@ namespace odelib {
  * BackwardDifferentiationFormula
  * Special family of implicit, non-adaptive, multistep methods.
  */
-template<typename Method, typename Dv = Arenstorf::Dv>
+template <typename Method, typename Dv = Arenstorf::Dv>
 concept BackwardDifferentiationFormula = requires(Method met, Dv f, double t,
     const Vectord<Dv::kDim>* x, double h, const Vectord<Dv::kDim>& dv) {
-  { Method::order } -> std::same_as<const int&>;
-  { Method::neededSteps } -> std::same_as<const int&>;
-  { ImplicitEquation<decltype(met.equation(f, t, x, h))> };
+  { Method::kOrder } -> std::same_as<const int&>;
+  { Method::kNeededSteps } -> std::same_as<const int&>;
+  { met.equation(f, t, x, h) } -> ImplicitEquation;
 };
 
 }  // namespace odelib
 
-#endif // INCLUDE_METHODS_INTERFACES_BACKWARD_DIFFERENTIATION_FORMULA_HPP_
-
+#endif  // INCLUDE_METHODS_INTERFACES_BACKWARD_DIFFERENTIATION_FORMULA_HPP_

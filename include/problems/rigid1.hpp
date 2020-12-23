@@ -6,6 +6,11 @@
 
 namespace odelib {
 
+/**
+ * A rigid/stiff problem of dimension 1.
+ * Contains the partial derivative with respect to space of the function,
+ * allowing to solve the problem using Newton's method.
+ */
 struct Rigid1 {
   static inline double t0() { return 0; }
   static inline Vectord<1> x0() { return Vectord<1>{-1}; }

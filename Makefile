@@ -20,7 +20,7 @@ BINDIR=bin#                binaries folder
 CXX=g++
 INC=-I lib/ -I $(INCDIR)
 CXXFLAGS=-std=c++20 -Wall -Werror -Wno-unused -O3 -march=native -mtune=native \
-         --fast-math -D EIGEN_DONT_VECTORIZE -D NDEBUG #-ffast-math
+         --fast-math -D EIGEN_DONT_VECTORIZE -D NDEBUG #-fconcepts-diagnostics-depth=10#-ffast-math
 
 # File Sources ────────────────────────────────────────────────────────────────
 

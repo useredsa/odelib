@@ -37,7 +37,7 @@ static_assert(PlainAdaptiveMethod<Fehlberg>);
 static_assert(PlainMultistepMethod<AdamsBashforth4>);
 
 // AdaptiveMultistep
-//TODO I think we should be able to write it without `AdamsBashforth4`
+// TODO(edsa): I think we should be able to write it without `AdamsBashforth4`
 // because it's the default template
 static_assert(AdaptiveMultistepMethod<PredictorCorrector4<AdamsBashforth4>>);
 
@@ -53,4 +53,4 @@ static_assert(BackwardDifferentiationFormula<Bdf4>);
 static_assert(BackwardDifferentiationFormula<Bdf5>);
 static_assert(BackwardDifferentiationFormula<Bdf6>);
 
-}
+}  // namespace odelib

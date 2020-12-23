@@ -6,16 +6,23 @@
 
 namespace odelib {
 
+/**
+ * Modified's Euler Method (also known as Heun's Method)
+ * A fixed step explicit method.
+ * It is a Runge-Kutta Method of order 2.
+ * 
+ * x_{n+1} = x_n + h/2*(f(t_n, x_n) + f(t_n + h/2, x_n + h/2*f(t_n, x_n))
+ */
 struct ModEuler {
-  static constexpr int order = 2;
+  static constexpr int kOrder = 2;
 
-  template<IvpDerivative D>
+  template <IvpDerivative D>
   inline Vectord<D::kDim> step(D f, double t, const Vectord<D::kDim>& x,
       double h) const {
-    return hinted_step(t, x, h, f(t, x));
+    return hinted_step(f, t, x, h, f(t, x));
   }
 
-  template<IvpDerivative D>
+  template <IvpDerivative D>
   inline Vectord<D::kDim> hinted_step(D f, double t, const Vectord<D::kDim>& x,
       double h, const Vectord<D::kDim>& dv) const {
     return x + (dv*h + f(t+h, x+dv*h)*h)/2;

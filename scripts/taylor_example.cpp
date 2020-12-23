@@ -1,35 +1,68 @@
-#include "methods/fixed_step.hpp"
-#include "problems/taylor_example.hpp"
-#include "Eigen/Dense"
-#include <cmath>
-using namespace fixed_step;
-using namespace taylor_example;
+#include <iostream>
+// Select a problem you want to solve
+#include "problems/taylor1.hpp"
+// Include the method you will use in the problem
+#include "methods/taylor.hpp"
+#include "solvers/plain_method_solver.hpp"
+// Include a container for the solution
+#include "solutions/standard_ode_solution.hpp"
+// Include additional tools
+#include "tools/tsv_output.hpp"
 using namespace std;
-using namespace Eigen;
+using namespace odelib;
 
-double step_size = 0.01;
-double max_t = 3;
-int num_it = (int) (max_t / step_size);
+SizeArgs args;
 
-inline Vectord<1> analytical_sol(double t) {
-    return Vectord<1>{(t+1)*(t+1) - 0.5 * exp(t)};
+template <int Order>
+SolverResult solve(StandardOdeSolution<1>& sol) {
+  return ExtendPastMaxTime(sol, Taylor<Order>(), Taylor1::Dv(), args);
 }
 
-int main() {
-    Vectord<1> x0{0.5};
-    auto sol = fixed_step_ode_solver(
-        0,
-        x0,
-        Taylor<derivative, 5>(),
-        step_size,
-        num_it
-    );
-    double err = 0.0;
-    double t = 0;
-    for(Vectord<1>& x : sol) {
-        err = max(err, (x - analytical_sol(t)).norm());
-        t += step_size;
-    }
-    cout << err << endl;
+int main(int argc, char** argv) {
+  if (argc != 4) {
+    cerr << "Usage: <program> <max_time> <step_size> <1 <= order <= 8>" << endl;
+    return -1;
+  }
+  args.maxTime = atof(argv[1]);
+  args.fixedStepSize = atof(argv[2]);
+  int order = atoi(argv[3]);
+  StandardOdeSolution sol = StandardOdeSolutionFromIvp(Taylor1());
+
+  SolverResult result = SolverResult::kOk;
+  switch (order) {
+    case 1:
+      result = solve<1>(sol);
+      break;
+    case 2:
+      result = solve<2>(sol);
+      break;
+    case 3:
+      result = solve<3>(sol);
+      break;
+    case 4:
+      result = solve<4>(sol);
+      break;
+    case 5:
+      result = solve<5>(sol);
+      break;
+    case 6:
+      result = solve<6>(sol);
+      break;
+    case 7:
+      result = solve<7>(sol);
+      break;
+    case 8:
+      result = solve<8>(sol);
+      break;
+  }
+
+  double absErr = AbsDiff(sol, Taylor1::AnalyticalSolution());
+  double meanErr = MeanDiff(sol, Taylor1::AnalyticalSolution());
+  cout << "# Absolute Error: " << absErr << "\n";
+  cout << "# Mean Error: " << meanErr << "\n";
+  PrintSolution(cout, sol, 3000);
+  if (result != SolverResult::kOk) {
+    return -2;
+  }
 }
 

@@ -6,11 +6,18 @@
 
 namespace odelib {
 
+/**
+ * Two Bodies problem
+ * The movement of first body with respect to a second body
+ * when they are subject to the gravitational laws.
+ */
 class TwoBodies {
  public:
   static constexpr double kMSun = 1988.5;
   static constexpr double kMEarth = 5.9724e-3;
   static constexpr double kGSunEarth = 8.649828e-4;
+
+  TwoBodies() : t0_(0), x0_{152.100533, 0, 0, 0.105444} {}
 
   TwoBodies(double t0, Vectord<4> x0) : t0_(t0), x0_(x0) {}
 

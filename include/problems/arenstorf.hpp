@@ -2,10 +2,15 @@
 #define INCLUDE_PROBLEMS_ARENSTORF_HPP_
 
 #include <cmath>
-#include "Eigen/Dense"
+#include "types.hpp"
 
 namespace odelib {
 
+/**
+ * Arenstorf satellite orbit around the Moon and Earth problem.
+ * A nice problem that shows a pretty good plot and
+ * is best suited for adaptive problems.
+ */
 struct Arenstorf {
   static constexpr double kMMoon = 0.012277471;
   static constexpr double kMEarth = 1-kMMoon;

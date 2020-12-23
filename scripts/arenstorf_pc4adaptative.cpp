@@ -1,41 +1,29 @@
-#include "methods/fixed_step.hpp"
-#include "methods/multistep.hpp"
-#include "methods/adaptative_multistep.hpp"
+#include <iostream>
+// Select a problem you want to solve
 #include "problems/arenstorf.hpp"
-
-using namespace fixed_step;
-using namespace adaptative_multistep;
-using namespace multistep;
-using namespace arenstorf;
+// Include the method you will use in the problem
+#include "methods/predictor_corrector_4.hpp"
+#include "solvers/solve.hpp"
+// Include a container for the solution
+#include "solutions/standard_ode_solution.hpp"
+// Include additional tools
+#include "tools/tsv_output.hpp"
 using namespace std;
+using namespace odelib;
 
-double step_size = 1e-6;
-int num_it = 40e6;
+SizeArgs args;
 
-void print(Vector4d& x) {
-    cout << "p(" << x[0] << ", " << x[1] << ") v(" << x[2] << ", " << x[3] << ")\n";
-}
-
-int main() {
-    // cin >> step_size >> num_it;
-    double t0 = 0;
-    Vector4d x0{0.994, 0, 0, -2.001585106}; 
-    struct PredictorCorrector4<
-        derivative,
-        AdamsBashforth4<derivative>,
-        RK4<derivative>
-        > pc4;
-    pc4.h = 1;
-    pc4.tol = 1e-8;
-    auto [t, x] = adaptative_multistep_ode_solver(
-        t0,
-        x0,
-        pc4,
-        18.0
-    );
-    // print(sol.second.back());
-    for(size_t i=0; i<t.size(); ++i){
-        cout << x[i][0] << " " << x[i][1] << endl;
-    }
+int main(int argc, char** argv) {
+  if (argc != 5) {
+    cerr << "Usage: <program> <max_time> <min_step_allowed> <max_step_allowed> "
+        << "<tolerance>" << endl;
+    return -1;
+  }
+  args.maxTime = atof(argv[1]);
+  args.minStepAllowed = atof(argv[2]);
+  args.maxStepAllowed = atof(argv[3]);
+  args.tolerance = atof(argv[4]);
+  auto sol = SolvePastMaxTime(Arenstorf(), PredictorCorrector4(), args);
+  PrintSolution(cout, sol, {0, 1}, 3000);
 }
 

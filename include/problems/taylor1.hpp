@@ -1,11 +1,16 @@
-#ifndef INCLUDE_PROBLEMS_TAYLOR_EXAMPLE_HPP_
-#define INCLUDE_PROBLEMS_TAYLOR_EXAMPLE_HPP_
+#ifndef INCLUDE_PROBLEMS_TAYLOR1_HPP_
+#define INCLUDE_PROBLEMS_TAYLOR1_HPP_
 
 #include <cmath>
 #include "types.hpp"
 
 namespace odelib {
 
+/**
+ * A problem of dimension 1
+ * that contains derivatives
+ * (therefore suited for Taylor's method)
+ */
 struct Taylor1 {
   static inline double t0() { return 0; }
   static inline Vectord<1> x0() { return Vectord<1>{0.5}; }
@@ -19,39 +24,47 @@ struct Taylor1 {
       return Vectord<1>{x[0] -t*t +1};
     }
 
-    template<int Order>
+    template <int Order>
     inline Vectord<1> dvn(double t, const Vectord<1>& x) const;
+  };
+
+  struct AnalyticalSolution {
+    inline Vectord<1> operator()(double t) const {
+      return Vectord<1>{(t+1)*(t+1) - 0.5 * exp(t)};
+    }
   };
 };
 
-template<>
+template <>
 Vectord<1> Taylor1::Dv::dvn<0>(double t, const Vectord<1>& x) const {
   return operator()(t, x);
 }
 
-template<>
+template <>
 Vectord<1> Taylor1::Dv::dvn<1>(double t, const Vectord<1>& x) const {
   return Vectord<1>{x[0] - t*t - 2*t + 1};
 }
 
-template<int Order>
+template <int Order>
 Vectord<1> Taylor1::Dv::dvn(double t, const Vectord<1>& x) const {
   return Vectord<1>{x[0] - t*t - 2*t - 1};
 }
 
 // Alternative Implementation
 
-// template<int Order>
-// Vectord<1> Taylor1::Dv::dvn(double t, const Vectord<1>& x) {
-//   if constexpr (Order == 0) {
-//     return dv(t, x);
-//   } else if constexpr (Order == 1) {
-//     return Vectord<1>{x[0] - t*t - 2*t + 1};
-//   } else {
-//     return Vectord<1>{x[0] - t*t - 2*t - 1};
-//   }
-// }
+/*
+template <int Order>
+Vectord<1> Taylor1::Dv::dvn(double t, const Vectord<1>& x) {
+  if constexpr (Order == 0) {
+    return dv(t, x);
+  } else if constexpr (Order == 1) {
+    return Vectord<1>{x[0] - t*t - 2*t + 1};
+  } else {
+    return Vectord<1>{x[0] - t*t - 2*t - 1};
+  }
+}
+*/
 
 }  // namespace odelib
 
-#endif  // INCLUDE_PROBLEMS_TAYLOR_EXAMPLE_HPP_
+#endif  // INCLUDE_PROBLEMS_TAYLOR1_HPP_

@@ -12,11 +12,11 @@ namespace odelib {
  * PlainMultistepMethod
  * An explicit, non-adaptive, multistep method for solving ODEs.
  */
-template<typename Method, typename Dv = Arenstorf::Dv>
+template <typename Method, typename Dv = Arenstorf::Dv>
 concept PlainMultistepMethod = requires(Method met, Dv f, double t,
     const Vectord<Dv::kDim>* x, double h, const Vectord<Dv::kDim>* dv) {
-  { Method::order } -> std::same_as<const int&>;
-  { Method::neededSteps } -> std::same_as<const int&>;
+  { Method::kOrder } -> std::same_as<const int&>;
+  { Method::kNeededSteps } -> std::same_as<const int&>;
   { met.step(f, t, x, h, dv) } -> std::same_as<Vectord<Dv::kDim>>;
 };
 

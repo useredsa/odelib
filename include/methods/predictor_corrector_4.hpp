@@ -11,14 +11,26 @@
 
 namespace odelib {
 
-template<PlainMultistepMethod Predictor = AdamsBashforth4>
+/**
+ * Adams Moulton Predictor Corrector of order 4
+ * An adaptive multistep explicit method.
+ * 
+ * Uses Adams Bashforth method of order 4 to approximate
+ * the next step for the Adams Moulton fourth order method
+ * instead of using an implicit equation solver.
+ * Predict - Computing the next point with the predictor method
+ * Correct - Correcting the first value by evaluating adams moulton
+ * An error estimate is computed using the predicted and the corrected
+ * next points.
+ */
+template <PlainMultistepMethod Predictor = AdamsBashforth4>
 struct PredictorCorrector4 {
-  static constexpr int order = std::min(4, Predictor::order);
-  static constexpr int neededSteps = std::max(3, Predictor::neededSteps);
+  static constexpr int kOrder = std::min(4, Predictor::kOrder);
+  static constexpr int kNeededSteps = std::max(2, Predictor::kNeededSteps);
 
   Predictor predictor;
 
-  template<IvpDerivative D>
+  template <IvpDerivative D>
   inline std::pair<Vectord<D::kDim>, double> step(D f, double t,
       const Vectord<D::kDim>* x, double& h,
       const Vectord<D::kDim>* d, double tol) const {

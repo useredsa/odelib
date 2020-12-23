@@ -1,121 +1,131 @@
 #ifndef INCLUDE_ODE_SOLUTION_HPP_
 #define INCLUDE_ODE_SOLUTION_HPP_
 
+#include <algorithm>
 #include <concepts>
 #include <vector>
 #include "types.hpp"
+#include "tools/interpolation.hpp"
 
 namespace odelib {
 
-template<typename T>
-concept AbstractNumericalSolution = requires(const T& ns, int i) {
+// TODO(edsa): developing a container that does not store
+// derivatives and integrating it into the rest of the system
+// is still pending.
+/**
+ * A container to store numerical solutions to ODEs.
+ * 
+ * The container shall support basic operations,
+ * as well as providing a way to determine whether
+ * the derivatives at the solution's points need to be calculated.
+ */
+template <typename T>
+concept OdeSolution = requires(const T& ns, int i) {
   { T::kDim } -> std::same_as<const int&>;
+  { ns.empty() } -> std::same_as<bool>;
   { ns.size() } -> std::same_as<size_t>;
-  { ns.t()[i] } -> std::convertible_to<double>;
-  { ns.x()[i] } -> std::same_as<const Vectord<T::kDim>&>;
-  { ns.dv()[i] } -> std::same_as<const Vectord<T::kDim>&>;
+  { ns.t[i] } -> std::convertible_to<double>;
+  { ns.x[i] } -> std::same_as<const Vectord<T::kDim>&>;
+  { ns.dv[i] } -> std::same_as<const Vectord<T::kDim>&>;
 };
 
-template<typename T>
-concept SpecifiesTolerance = requires(T t) {
-  { t.tolerance() } -> std::same_as<const double&>;
-};
-
-template<typename T>
-concept SupportsFixedStep = requires(T ns) {
-  { ns.fixedStepSize() } -> std::same_as<double>;
-};
-
-template<typename T>
-concept SupportsAdaptableStep = SpecifiesTolerance<T> && requires(T ns) {
-  { ns.minStepAllowed() } -> std::same_as<double>;
-  { ns.maxStepAllowed() } -> std::same_as<double>;
-};
-
-template<typename T>
-concept SupportsImplicitSteps = SpecifiesTolerance<T>;
-
-template<int N>
-struct StandardNumericalSolution {
- public:
-  static constexpr int kDim = N;
-
-  StandardNumericalSolution() {}
-
-  inline size_t size() const { return t_.size(); }
-  inline const std::vector<double>& t() const { return t_; }
-  inline const std::vector<Vectord<N>>& x() const { return x_; }
-  inline const std::vector<Vectord<N>>& dv() const { return dv_; }
-  inline std::vector<double>& t() { return t_; }
-  inline std::vector<Vectord<N>>& x() { return x_; }
-  inline std::vector<Vectord<N>>& dv() { return dv_; }
-
-  inline void reserve(size_t size) {
-    t_.reserve(size);
-    x_.reserve(size);
-    dv_.reserve(size);
+template <OdeSolution Os>
+std::optional<Vectord<Os::kDim>> Interpolate(const Os& os, double time,
+    int order) {
+  int n = os.size();
+  int pos = lower_bound(os.t.begin(), os.t.end(), time) - os.t.begin();
+  if (pos == n || pos == 0) {
+    return {};
   }
-
-  inline void addPoint(double t, const Vectord<N>& x) {
-    t_.push_back(t);
-    x_.push_back(x);
+  if (order >= 0) {
+    const int nPoints = 4;
+    // If we don't have 4 points then interpolate with the ones we do have.
+    if (n < nPoints) {
+      return interpolation::Hermite(os.t, os.x, time);
+    }
+    // Points we try to use to interpolate if they exist
+    // First try with (pos-2 pos-1 pos pos+1)
+    // then           (pos-1 pos pos+1 pos+2)...
+    const int tries[] = {2, 1, 3, 0};
+    for (int id : tries) {
+      if (pos >= id && pos+nPoints-id <= n) {
+        std::vector<double> t(4);
+        std::vector<Vectord<Os::kDim>> x(4);
+        for (int i = 0; i < 4; ++i) {
+          t[i] = os.t[pos-id+i];
+          x[i] = os.x[pos-id+i];
+        }
+        return interpolation::Hermite(t, x, time);
+      }
+    }
+    // We cannot get here because there are at least nPoints points
   }
-  inline void addPoint(double t, const Vectord<N>& x, const Vectord<N>& dv) {
-    t_.push_back(t);
-    x_.push_back(x);
-    dv_.push_back(dv);
+  return {};
+}
+
+/**
+ * Returns the maximum difference between two OdeSolution.
+ * 
+ * The algorithm interpolates at the time of
+ * each of the solution's points.
+ */
+template <OdeSolution Os1, OdeSolution Os2>
+double AbsDiff(Os1 lhs, Os2 rhs) {
+  double err = 0;
+  for (size_t i = 0; i < lhs.size(); ++i) {
+    err = std::max(err, (lhs.x[i] - interpolate(rhs, lhs.t[i])).norm());
   }
-
- private:
-  std::vector<double> t_;
-  std::vector<Vectord<N>> x_;
-  std::vector<Vectord<N>> dv_;
-};
-
-struct LinearRange {
- public:
-  LinearRange(double t0, double h) : t0_(t0), h_(h) {}
-
-  inline double operator[](int i) const { return t0_ + i*h_; }
-
- private:
-  double t0_, h_;
-};
-
-template<int N>
-struct FixedStepNumericalSolution {
- public:
-  static constexpr int kDim = N;
-
-  FixedStepNumericalSolution(double t0, double h) : t_(t0, h) {}
-
-  FixedStepNumericalSolution(int size, double t0, double h) : t_(t0, h),
-      x_(size), dv_(size) {}
-
-  inline size_t size() const { return x_.size(); }
-  inline const LinearRange& t() const { return t_; }
-  inline const std::vector<Vectord<N>>& x() const { return x_; }
-  inline const std::vector<Vectord<N>>& dv() const { return dv_; }
-  inline std::vector<Vectord<N>>& x() { return x_; }
-  inline std::vector<Vectord<N>>& dv() { return dv_; }
-
-  inline void reserve(size_t size) {
-    x_.reserve(size);
-    dv_.reserve(size);
+  for (size_t i = 0; i < rhs.size(); ++i) {
+    err = std::max(err, (rhs.x[i] - interpolate(lhs, rhs.t[i])).norm());
   }
+  return err;
+}
 
-  inline void addPoint(double t, const Vectord<N>& x, const Vectord<N>& dv) {
-    x_.push_back(x);
-    dv_.push_back(dv);
+/**
+ * Returns the mean difference between two OdeSolution.
+ * 
+ * The algorithm interpolates at the time of
+ * each of the solution's points.
+ */
+template <OdeSolution Os1, OdeSolution Os2>
+double MeanDiff(Os1 lhs, Os2 rhs) {
+  double err = 0;
+  for (size_t i = 0; i < lhs.size(); ++i) {
+    err += (lhs.x[i] - interpolate(rhs, lhs.t[i])).norm();
   }
+  for (size_t i = 0; i < rhs.size(); ++i) {
+    err += (rhs.x[i] - interpolate(lhs, rhs.t[i])).norm();
+  }
+  err /= lhs.size()+rhs.size();
+  return err;
+}
 
- private:
-  LinearRange t_;
-  std::vector<Vectord<N>> x_;
-  std::vector<Vectord<N>> dv_;
-};
+/**
+ * Returns the maximum difference between
+ * an OdeSolution and a analytical solution.
+ */
+template <OdeSolution Os, typename AnalyticalSolution>
+double AbsDiff(Os os, AnalyticalSolution as) {
+  double err = 0;
+  for (size_t i = 0; i < os.size(); ++i) {
+    err = std::max(err, (os.x[i]-as(os.t[i])).norm());
+  }
+  return err;
+}
+
+/**
+ * Returns the mean difference between
+ * an OdeSolution and a analytical solution.
+ */
+template <OdeSolution Os, typename AnalyticalSolution>
+double MeanDiff(Os os, AnalyticalSolution as) {
+  double err = 0;
+  for (size_t i = 0; i < os.size(); ++i) {
+    err += (os.x[i]-as(os.t[i])).norm();
+  }
+  return err/os.size();
+}
 
 }  // namespace odelib
 
 #endif  // INCLUDE_ODE_SOLUTION_HPP_
-
